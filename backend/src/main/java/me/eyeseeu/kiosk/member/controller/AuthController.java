@@ -1,8 +1,12 @@
 package me.eyeseeu.kiosk.member.controller;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import me.eyeseeu.kiosk.member.dto.request.LoginRequest;
 import me.eyeseeu.kiosk.member.dto.request.SignUpRequest;
+import me.eyeseeu.kiosk.member.dto.response.LoginResponse;
+import me.eyeseeu.kiosk.member.dto.response.MemberInfo;
 import me.eyeseeu.kiosk.member.service.MemberService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,5 +23,20 @@ public class AuthController {
     @PostMapping("/signup")
     public void signup(@Valid @RequestBody SignUpRequest signUpRequest) {
         memberService.signup(signUpRequest);
+    }
+
+    @PostMapping("/login")
+    public MemberInfo login(@Valid @RequestBody LoginRequest loginRequest, HttpSession session) {
+        LoginResponse loginResponse = memberService.login(loginRequest);
+        MemberInfo memberInfo = new MemberInfo(
+            loginResponse.email(),
+            loginResponse.name(),
+            loginResponse.storeName()
+        );
+
+        session.setAttribute("memberId", loginResponse.memberId());
+        session.setAttribute("memberInfo", memberInfo);
+
+        return memberInfo;
     }
 }

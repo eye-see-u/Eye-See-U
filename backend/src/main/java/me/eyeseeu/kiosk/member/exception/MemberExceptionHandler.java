@@ -17,4 +17,12 @@ public class MemberExceptionHandler {
             .body(new ExceptionResponse(ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ExceptionResponse> handleInvalidCredentialsException(
+        InvalidCredentialsException ex) {
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new ExceptionResponse(ex.getMessage()));
+    }
+
 }

@@ -49,12 +49,7 @@ public class CategoryService {
     @Transactional
     public CategoryUpdateResponse updateCategory(Long memberId, Long categoryId,
         CategoryUpdateRequest categoryUpdateRequest) {
-        Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(CategoryNotFoundException::new);
-
-        if (!category.getMember().getId().equals(memberId)) {
-            throw new NotOwnedCategoryException();
-        }
+        Category category = findCategoryById(memberId, categoryId);
 
         category.updateName(categoryUpdateRequest.name());
 
@@ -62,13 +57,18 @@ public class CategoryService {
     }
 
     public void deleteCategory(Long memberId, Long categoryId) {
+        Category category = findCategoryById(memberId, categoryId);
+
+        categoryRepository.delete(category);
+    }
+
+    public Category findCategoryById(Long memberId, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
             .orElseThrow(CategoryNotFoundException::new);
 
         if (!category.getMember().getId().equals(memberId)) {
             throw new NotOwnedCategoryException();
         }
-
-        categoryRepository.delete(category);
+        return category;
     }
 }

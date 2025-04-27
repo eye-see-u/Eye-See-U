@@ -119,49 +119,6 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("카테고리 수정 실패 - 카테고리 없음")
-    public void updateCategoryFailNotFound() {
-        // Given
-        Long memberId = 1L;
-        Long categoryId = 1L;
-        String updatedName = "Updated Category";
-        CategoryUpdateRequest request = new CategoryUpdateRequest(updatedName);
-
-        given(categoryRepository.findById(categoryId)).willReturn(Optional.empty());
-
-        // When
-        // Then
-        assertThatThrownBy(() -> categoryService.updateCategory(memberId, categoryId, request))
-            .isInstanceOf(CategoryNotFoundException.class);
-    }
-
-    @Test
-    @DisplayName("카테고리 수정 실패 - 카테고리 소유자 불일치")
-    public void updateCategoryFailNotOwned() {
-        // Given
-        Long ownerId = 1L;
-        Long memberId = 2L;
-        Long categoryId = 1L;
-        String updatedName = "Updated Category";
-        CategoryUpdateRequest request = new CategoryUpdateRequest(updatedName);
-
-        Member member = Member.builder().build();
-        Category category = Category.builder()
-            .name("Old Category")
-            .member(member)
-            .build();
-
-        ReflectionTestUtils.setField(member, "id", ownerId);
-
-        given(categoryRepository.findById(categoryId)).willReturn(Optional.of(category));
-
-        // When
-        // Then
-        assertThatThrownBy(() -> categoryService.updateCategory(memberId, categoryId, request))
-            .isInstanceOf(NotOwnedCategoryException.class);
-    }
-
-    @Test
     @DisplayName("카테고리 삭제 성공")
     public void deleteCategorySuccess() {
         // Given
@@ -186,8 +143,32 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("카테고리 삭제 실패 - 카테고리 없음")
-    public void deleteCategoryFailNotFound() {
+    @DisplayName("카테고리 검색 성공")
+    public void findCategoryByIdSuccess() {
+        // Given
+        Long memberId = 1L;
+        Long categoryId = 1L;
+
+        Member member = Member.builder().build();
+        Category category = Category.builder()
+            .name("Category to be found")
+            .member(member)
+            .build();
+
+        ReflectionTestUtils.setField(member, "id", memberId);
+
+        given(categoryRepository.findById(categoryId)).willReturn(Optional.of(category));
+
+        // When
+        Category foundCategory = categoryService.findCategoryById(memberId, categoryId);
+
+        // Then
+        assertThat(foundCategory).isEqualTo(category);
+    }
+
+    @Test
+    @DisplayName("카테고리 검색 실패 - 카테고리 없음")
+    public void findCategoryByIdNotFound() {
         // Given
         Long memberId = 1L;
         Long categoryId = 1L;
@@ -196,13 +177,13 @@ class CategoryServiceTest {
 
         // When
         // Then
-        assertThatThrownBy(() -> categoryService.deleteCategory(memberId, categoryId))
+        assertThatThrownBy(() -> categoryService.findCategoryById(memberId, categoryId))
             .isInstanceOf(CategoryNotFoundException.class);
     }
 
     @Test
-    @DisplayName("카테고리 삭제 실패 - 카테고리 소유자 불일치")
-    public void deleteCategoryFailNotOwned() {
+    @DisplayName("카테고리 검색 실패 - 소유하지 않은 카테고리")
+    public void findCategoryByIdNotOwned() {
         // Given
         Long ownerId = 1L;
         Long memberId = 2L;
@@ -210,7 +191,7 @@ class CategoryServiceTest {
 
         Member member = Member.builder().build();
         Category category = Category.builder()
-            .name("Category to be deleted")
+            .name("Category to be found")
             .member(member)
             .build();
 
@@ -220,7 +201,7 @@ class CategoryServiceTest {
 
         // When
         // Then
-        assertThatThrownBy(() -> categoryService.deleteCategory(memberId, categoryId))
+        assertThatThrownBy(() -> categoryService.findCategoryById(memberId, categoryId))
             .isInstanceOf(NotOwnedCategoryException.class);
     }
 

@@ -25,4 +25,20 @@ public class MemberExceptionHandler {
             .body(new ExceptionResponse(ex.getMessage()));
     }
 
+    @ExceptionHandler(MemberNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleMemberNotFoundException(
+        MemberNotFoundException ex) {
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new ExceptionResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(DeletedMemberException.class)
+    public ResponseEntity<ExceptionResponse> handleDeletedMemberException(
+        DeletedMemberException ex) {
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new ExceptionResponse(ex.getMessage()));
+    }
+
 }

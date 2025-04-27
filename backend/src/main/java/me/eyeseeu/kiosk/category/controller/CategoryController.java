@@ -1,11 +1,16 @@
 package me.eyeseeu.kiosk.category.controller;
 
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import me.eyeseeu.kiosk.category.dto.request.CategoryCreateRequest;
 import me.eyeseeu.kiosk.category.dto.response.CategoryCreateResponse;
+import me.eyeseeu.kiosk.category.dto.response.CategoryGetResponse;
 import me.eyeseeu.kiosk.category.service.CategoryService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +32,14 @@ public class CategoryController {
         Long memberId = (Long) session.getAttribute("memberId");
 
         return categoryService.createCategory(request, memberId);
+    }
+
+    @GetMapping
+    public List<CategoryGetResponse> getCategories(HttpSession session) {
+
+        Long memberId = (Long) session.getAttribute("memberId");
+
+        return categoryService.getAllCategories(memberId);
     }
 
 }

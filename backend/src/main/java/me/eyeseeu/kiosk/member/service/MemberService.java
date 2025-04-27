@@ -5,8 +5,10 @@ import me.eyeseeu.kiosk.member.dto.request.LoginRequest;
 import me.eyeseeu.kiosk.member.dto.request.SignUpRequest;
 import me.eyeseeu.kiosk.member.dto.response.LoginResponse;
 import me.eyeseeu.kiosk.member.entity.Member;
+import me.eyeseeu.kiosk.member.exception.DeletedMemberException;
 import me.eyeseeu.kiosk.member.exception.DuplicateEmailException;
 import me.eyeseeu.kiosk.member.exception.InvalidCredentialsException;
+import me.eyeseeu.kiosk.member.exception.MemberNotFoundException;
 import me.eyeseeu.kiosk.member.repository.MemberRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -47,4 +49,14 @@ public class MemberService {
         );
     }
 
+    public Member findMemberById(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(MemberNotFoundException::new);
+
+        if (member.isDeleted()) {
+            throw new DeletedMemberException();
+        }
+
+        return member;
+    }
 }

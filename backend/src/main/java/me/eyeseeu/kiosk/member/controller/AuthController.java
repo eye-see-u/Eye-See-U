@@ -39,4 +39,9 @@ public class AuthController {
 
         return memberInfo;
     }
+
+    @PostMapping("/logout")
+    public void logout(HttpSession session) {
+        session.invalidate();
+    }
 }

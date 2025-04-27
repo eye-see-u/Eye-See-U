@@ -1,13 +1,18 @@
 package me.eyeseeu.kiosk.member.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
+import java.util.Optional;
+import me.eyeseeu.kiosk.member.dto.request.LoginRequest;
 import me.eyeseeu.kiosk.member.dto.request.SignUpRequest;
+import me.eyeseeu.kiosk.member.dto.response.LoginResponse;
 import me.eyeseeu.kiosk.member.entity.Member;
 import me.eyeseeu.kiosk.member.exception.DuplicateEmailException;
+import me.eyeseeu.kiosk.member.exception.InvalidCredentialsException;
 import me.eyeseeu.kiosk.member.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
@@ -59,7 +65,7 @@ class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("중복된 이메일로 회원가입 실패")
+    @DisplayName("회원가입 실패 - 중복된 이메일")
     void signupDuplicatedEmail() {
         // Given
         String email = "admin@emil.com";
@@ -73,5 +79,83 @@ class MemberServiceTest {
         // When
         // Then
         assertThrows(DuplicateEmailException.class, () -> memberService.signup(signUpRequest));
+    }
+
+    @Test
+    @DisplayName("로그인 성공")
+    void login() {
+        // Given
+        Long memberId = 1L;
+        String email = "admin@emil.com";
+        String name = "admin";
+        String password = "password";
+        String encodedPassword = "encodedPassword";
+        String storeName = "store";
+
+        Member member = Member.builder()
+            .email(email)
+            .name(name)
+            .password(encodedPassword)
+            .storeName(storeName)
+            .build();
+
+        ReflectionTestUtils.setField(member, "id", memberId);
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+        given(passwordEncoder.matches(password, encodedPassword)).willReturn(true);
+
+        // When
+        LoginResponse loginResponse = memberService.login(new LoginRequest(email, password));
+
+        // Then
+        then(memberRepository).should().findByEmail(email);
+        then(passwordEncoder).should().matches(password, encodedPassword);
+
+        assertThat(loginResponse.memberId()).isEqualTo(memberId);
+    }
+
+    @Test
+    @DisplayName("로그인 실패 - 등록되지 않은 이메일")
+    void loginFailUnregisteredEmail() {
+        // Given
+        Long memberId = 1L;
+        String email = "admin@emil.com";
+        String password = "password";
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.empty());
+
+        // When
+        // Then
+        assertThrows(InvalidCredentialsException.class,
+            () -> memberService.login(new LoginRequest(email, password)));
+    }
+
+    @Test
+    @DisplayName("로그인 실패 - 잘못된 비밀번호")
+    void loginFailWrongPassword() {
+        // Given
+        Long memberId = 1L;
+        String email = "admin@emil.com";
+        String name = "admin";
+        String password = "password";
+        String encodedPassword = "encodedPassword";
+        String storeName = "store";
+
+        Member member = Member.builder()
+            .email(email)
+            .name(name)
+            .password(encodedPassword)
+            .storeName(storeName)
+            .build();
+
+        ReflectionTestUtils.setField(member, "id", memberId);
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+        given(passwordEncoder.matches(password, encodedPassword)).willReturn(false);
+
+        // When
+        // Then
+        assertThrows(InvalidCredentialsException.class,
+            () -> memberService.login(new LoginRequest(email, password)));
     }
 }

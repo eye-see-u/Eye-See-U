@@ -11,8 +11,10 @@ import me.eyeseeu.kiosk.member.dto.request.LoginRequest;
 import me.eyeseeu.kiosk.member.dto.request.SignUpRequest;
 import me.eyeseeu.kiosk.member.dto.response.LoginResponse;
 import me.eyeseeu.kiosk.member.entity.Member;
+import me.eyeseeu.kiosk.member.exception.DeletedMemberException;
 import me.eyeseeu.kiosk.member.exception.DuplicateEmailException;
 import me.eyeseeu.kiosk.member.exception.InvalidCredentialsException;
+import me.eyeseeu.kiosk.member.exception.MemberNotFoundException;
 import me.eyeseeu.kiosk.member.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -157,5 +159,73 @@ class MemberServiceTest {
         // Then
         assertThrows(InvalidCredentialsException.class,
             () -> memberService.login(new LoginRequest(email, password)));
+    }
+
+    @Test
+    @DisplayName("회원 검색 성공")
+    void findMemberById() {
+        // Given
+        Long memberId = 1L;
+        String email = "admin@emil.com";
+        String name = "admin";
+        String encodedPassword = "encodedPassword";
+        String storeName = "store";
+
+        Member member = Member.builder()
+            .email(email)
+            .name(name)
+            .password(encodedPassword)
+            .storeName(storeName)
+            .build();
+        ReflectionTestUtils.setField(member, "id", memberId);
+
+        given(memberRepository.findById(memberId)).willReturn(Optional.of(member));
+
+        // When
+        Member foundMember = memberService.findMemberById(memberId);
+
+        // Then
+        then(memberRepository).should().findById(memberId);
+        assertThat(foundMember).isEqualTo(member);
+    }
+
+    @Test
+    @DisplayName("회원 검색 실패 - 존재하지 않는 회원")
+    void findMemberByIdFailMemberNotFound() {
+        // Given
+        Long memberId = 1L;
+
+        given(memberRepository.findById(memberId)).willReturn(Optional.empty());
+
+        // When
+        // Then
+        assertThrows(MemberNotFoundException.class, () -> memberService.findMemberById(memberId));
+    }
+
+    @Test
+    @DisplayName("회원 검색 실패 - 삭제된 회원")
+    void findMemberByIdFailDeletedMember() {
+        // Given
+        Long memberId = 1L;
+        String email = "admin@emil.com";
+        String name = "admin";
+        String encodedPassword = "encodedPassword";
+        String storeName = "store";
+
+        Member member = Member.builder()
+            .email(email)
+            .name(name)
+            .password(encodedPassword)
+            .storeName(storeName)
+            .build();
+        ReflectionTestUtils.setField(member, "id", memberId);
+
+        member.delete();
+
+        given(memberRepository.findById(memberId)).willReturn(Optional.of(member));
+
+        // When
+        // Then
+        assertThrows(DeletedMemberException.class, () -> memberService.findMemberById(memberId));
     }
 }

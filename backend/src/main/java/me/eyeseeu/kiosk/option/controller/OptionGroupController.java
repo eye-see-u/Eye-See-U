@@ -1,6 +1,5 @@
 package me.eyeseeu.kiosk.option.controller;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -32,17 +31,15 @@ public class OptionGroupController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OptionGroupCreateResponse createOptionGroup(
-        @Valid @RequestBody OptionGroupCreateRequest request, HttpSession session) {
-
-        Long memberId = (Long) session.getAttribute("memberId");
+        @Valid @RequestBody OptionGroupCreateRequest request,
+        @SessionAttribute("memberId") Long memberId) {
 
         return optionGroupService.createOptionGroup(memberId, request);
     }
 
     @GetMapping
-    public List<OptionGroupGetResponse> findAllOptionGroups(HttpSession session) {
-
-        Long memberId = (Long) session.getAttribute("memberId");
+    public List<OptionGroupGetResponse> findAllOptionGroups(
+        @SessionAttribute("memberId") Long memberId) {
 
         return optionGroupService.getAllOptionGroups(memberId);
     }

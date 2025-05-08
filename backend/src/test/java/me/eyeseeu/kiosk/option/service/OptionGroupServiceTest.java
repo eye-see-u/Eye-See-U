@@ -206,4 +206,94 @@ class OptionGroupServiceTest {
             () -> optionGroupService.updateOptionGroup(requestMemberId, optionGroupId, request))
             .isInstanceOf(NotOwnedOptionGroupException.class);
     }
+
+    @Test
+    @DisplayName("옵션 그룹 삭제 성공")
+    void deleteOptionGroupSuccess() {
+        // given
+        Long memberId = 1L;
+        Long optionGroupId = 1L;
+        Member member = Member.builder().build();
+        OptionGroup optionGroup = OptionGroup.builder()
+            .name("삭제할 옵션 그룹")
+            .minCount(1)
+            .maxCount(3)
+            .member(member)
+            .build();
+
+        ReflectionTestUtils.setField(member, "id", memberId);
+
+        given(optionGroupRepository.findById(optionGroupId)).willReturn(Optional.of(optionGroup));
+
+        // when
+        optionGroupService.deleteOptionGroup(memberId, optionGroupId);
+
+        // then
+        then(optionGroupRepository).should().delete(optionGroup);
+    }
+
+    @Test
+    @DisplayName("옵션 그룹 조회 성공")
+    void findOptionGroupByIdSuccess() {
+        // given
+        Long memberId = 1L;
+        Long optionGroupId = 1L;
+
+        Member member = Member.builder().build();
+        OptionGroup optionGroup = OptionGroup.builder()
+            .name("조회할 옵션 그룹")
+            .minCount(1)
+            .maxCount(5)
+            .member(member)
+            .build();
+
+        ReflectionTestUtils.setField(member, "id", memberId);
+
+        given(optionGroupRepository.findById(optionGroupId)).willReturn(Optional.of(optionGroup));
+
+        // when
+        OptionGroup found = optionGroupService.findOptionGroupById(memberId, optionGroupId);
+
+        // then
+        assertThat(found).isEqualTo(optionGroup);
+    }
+
+    @Test
+    @DisplayName("옵션 그룹 조회 실패 - 존재하지 않음")
+    void findOptionGroupByIdNotFound() {
+        // given
+        Long memberId = 1L;
+        Long optionGroupId = 1L;
+
+        given(optionGroupRepository.findById(optionGroupId)).willReturn(Optional.empty());
+
+        // expect
+        assertThatThrownBy(() -> optionGroupService.findOptionGroupById(memberId, optionGroupId))
+            .isInstanceOf(OptionGroupNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("옵션 그룹 조회 실패 - 소유자 아님")
+    void findOptionGroupByIdNotOwned() {
+        // given
+        Long ownerId = 1L;
+        Long memberId = 2L;
+        Long optionGroupId = 1L;
+
+        Member member = Member.builder().build();
+        OptionGroup optionGroup = OptionGroup.builder()
+            .name("조회할 옵션 그룹")
+            .minCount(1)
+            .maxCount(2)
+            .member(member)
+            .build();
+
+        ReflectionTestUtils.setField(member, "id", ownerId);
+
+        given(optionGroupRepository.findById(optionGroupId)).willReturn(Optional.of(optionGroup));
+
+        // expect
+        assertThatThrownBy(() -> optionGroupService.findOptionGroupById(memberId, optionGroupId))
+            .isInstanceOf(NotOwnedOptionGroupException.class);
+    }
 }

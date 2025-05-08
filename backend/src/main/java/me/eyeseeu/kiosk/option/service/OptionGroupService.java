@@ -8,12 +8,17 @@ import lombok.RequiredArgsConstructor;
 import me.eyeseeu.kiosk.member.entity.Member;
 import me.eyeseeu.kiosk.member.service.MemberService;
 import me.eyeseeu.kiosk.option.dto.request.OptionGroupCreateRequest;
-import me.eyeseeu.kiosk.option.dto.response.OptionGroupCreateResponse;
+import me.eyeseeu.kiosk.option.dto.request.OptionGroupUpdateRequest;
 import me.eyeseeu.kiosk.option.dto.response.OptionCreateResponse;
-import me.eyeseeu.kiosk.option.dto.response.OptionGroupGetResponse;
 import me.eyeseeu.kiosk.option.dto.response.OptionGetResponse;
+import me.eyeseeu.kiosk.option.dto.response.OptionGroupCreateResponse;
+import me.eyeseeu.kiosk.option.dto.response.OptionGroupGetResponse;
+import me.eyeseeu.kiosk.option.dto.response.OptionGroupUpdateResponse;
+import me.eyeseeu.kiosk.option.dto.response.OptionUpdateResponse;
 import me.eyeseeu.kiosk.option.entity.Option;
 import me.eyeseeu.kiosk.option.entity.OptionGroup;
+import me.eyeseeu.kiosk.option.exception.NotOwnedOptionGroupException;
+import me.eyeseeu.kiosk.option.exception.OptionGroupNotFoundException;
 import me.eyeseeu.kiosk.option.repository.OptionGroupRepository;
 import org.springframework.stereotype.Service;
 
@@ -87,6 +92,52 @@ public class OptionGroupService {
                 );
             })
             .collect(toList());
+    }
+
+    @Transactional
+    public OptionGroupUpdateResponse updateOptionGroup(Long memberId, Long optionGroupId,
+        OptionGroupUpdateRequest request) {
+        OptionGroup optionGroup = findOptionGroupById(memberId, optionGroupId);
+
+        optionGroup.update(request.name(), request.minCount(), request.maxCount());
+
+        optionGroup.clearOptions();
+        request.options().stream()
+            .map(opt -> Option.builder()
+                .name(opt.name())
+                .price(opt.price())
+                .picture(opt.picture())
+                .optionGroup(optionGroup)
+                .build())
+            .forEach(optionGroup::addOption);
+
+        optionGroupRepository.save(optionGroup);
+
+        return new OptionGroupUpdateResponse(
+            optionGroup.getId(),
+            optionGroup.getName(),
+            optionGroup.getMinCount(),
+            optionGroup.getMaxCount(),
+            optionGroup.getOptions().stream()
+                .map(opt -> new OptionUpdateResponse(
+                    opt.getId(),
+                    opt.getName(),
+                    opt.getPrice(),
+                    opt.getPicture()
+                ))
+                .collect(toList())
+        );
+    }
+
+    public OptionGroup findOptionGroupById(Long memberId, Long optionGroupId) {
+        OptionGroup optionGroup = optionGroupRepository.findById(optionGroupId)
+            .orElseThrow(OptionGroupNotFoundException::new);
+
+        if (!optionGroup.getMember().getId().equals(memberId)) {
+            throw new NotOwnedOptionGroupException();
+        }
+
+        return optionGroup;
     }
 
 }

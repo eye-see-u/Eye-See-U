@@ -55,4 +55,14 @@ public class OptionGroup extends BaseEntity {
         options.add(option);
     }
 
+    public void update(String name, int minCount, int maxCount) {
+        this.name = name;
+        this.minCount = minCount;
+        this.maxCount = maxCount;
+    }
+
+    public void clearOptions() {
+        this.options.clear();
+    }
+
 }

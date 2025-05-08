@@ -129,6 +129,13 @@ public class OptionGroupService {
         );
     }
 
+    @Transactional
+    public void deleteOptionGroup(Long memberId, Long optionGroupId) {
+        OptionGroup optionGroup = findOptionGroupById(memberId, optionGroupId);
+
+        optionGroupRepository.delete(optionGroup);
+    }
+
     public OptionGroup findOptionGroupById(Long memberId, Long optionGroupId) {
         OptionGroup optionGroup = optionGroupRepository.findById(optionGroupId)
             .orElseThrow(OptionGroupNotFoundException::new);

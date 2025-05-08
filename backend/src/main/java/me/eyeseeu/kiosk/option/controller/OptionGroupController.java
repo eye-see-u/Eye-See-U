@@ -11,6 +11,7 @@ import me.eyeseeu.kiosk.option.dto.response.OptionGroupGetResponse;
 import me.eyeseeu.kiosk.option.dto.response.OptionGroupUpdateResponse;
 import me.eyeseeu.kiosk.option.service.OptionGroupService;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,5 +54,14 @@ public class OptionGroupController {
         @SessionAttribute("memberId") Long memberId
     ) {
         return optionGroupService.updateOptionGroup(memberId, optionGroupId, request);
+    }
+
+    @DeleteMapping("/{optionGroupId}")
+    public void deleteOptionGroup(
+        @PathVariable Long optionGroupId,
+        @SessionAttribute(name = "memberId") Long memberId
+    ) {
+
+        optionGroupService.deleteOptionGroup(memberId, optionGroupId);
     }
 }

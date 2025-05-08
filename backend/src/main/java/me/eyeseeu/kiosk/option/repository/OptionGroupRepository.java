@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OptionGroupRepository extends JpaRepository<OptionGroup, Long> {
 
-    List<OptionGroup> findByMember(Member member);
+    List<OptionGroup> findAllByMember(Member member);
 }

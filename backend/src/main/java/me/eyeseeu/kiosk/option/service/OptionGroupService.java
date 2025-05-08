@@ -65,7 +65,7 @@ public class OptionGroupService {
 
     public List<OptionGroupGetResponse> getAllOptionGroups(Long memberId) {
         Member member = memberService.findMemberById(memberId);
-        List<OptionGroup> optionGroups = optionGroupRepository.findByMember(member);
+        List<OptionGroup> optionGroups = optionGroupRepository.findAllByMember(member);
 
         return optionGroups.stream()
             .map(optionGroup -> {

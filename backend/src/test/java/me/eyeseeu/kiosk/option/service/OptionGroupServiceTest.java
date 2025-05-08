@@ -9,7 +9,7 @@ import java.util.List;
 import me.eyeseeu.kiosk.member.entity.Member;
 import me.eyeseeu.kiosk.member.service.MemberService;
 import me.eyeseeu.kiosk.option.dto.request.OptionGroupCreateRequest;
-import me.eyeseeu.kiosk.option.dto.request.OptionGroupCreateRequest.OptionCreateRequest;
+import me.eyeseeu.kiosk.option.dto.request.OptionCreateRequest;
 import me.eyeseeu.kiosk.option.dto.response.OptionGroupGetResponse;
 import me.eyeseeu.kiosk.option.entity.Option;
 import me.eyeseeu.kiosk.option.entity.OptionGroup;

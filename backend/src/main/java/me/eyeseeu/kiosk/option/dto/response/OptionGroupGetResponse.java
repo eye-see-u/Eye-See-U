@@ -10,13 +10,4 @@ public record OptionGroupGetResponse(
     List<OptionGetResponse> options
 ) {
 
-    public record OptionGetResponse(
-        Long id,
-        String name,
-        int price,
-        String picture
-    ) {
-
-    }
-
 }

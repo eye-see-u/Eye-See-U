@@ -12,11 +12,4 @@ public record OptionGroupCreateRequest(
     @NotEmpty List<OptionCreateRequest> options
 ) {
 
-    public record OptionCreateRequest(
-        @NotBlank String name,
-        @Min(0) int price,
-        String picture
-    ) {
-
-    }
 }

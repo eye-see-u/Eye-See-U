@@ -11,6 +11,7 @@ import me.eyeseeu.kiosk.option.entity.OptionGroup;
 import me.eyeseeu.kiosk.option.service.OptionGroupService;
 import me.eyeseeu.kiosk.product.dto.request.ProductCreateRequest;
 import me.eyeseeu.kiosk.product.dto.response.ProductCreateResponse;
+import me.eyeseeu.kiosk.product.dto.response.ProductGetResponse;
 import me.eyeseeu.kiosk.product.entity.Product;
 import me.eyeseeu.kiosk.product.entity.ProductOptionGroup;
 import me.eyeseeu.kiosk.product.repository.ProductOptionGroupRepository;
@@ -68,4 +69,20 @@ public class ProductService {
         );
     }
 
+    public List<ProductGetResponse> getProducts(Long memberId) {
+        List<Product> products = productRepository.findAllByMemberId(memberId);
+        return products.stream()
+            .map(product -> new ProductGetResponse(
+                product.getId(),
+                product.getCategory().getId(),
+                product.getProductOptionGroups().stream()
+                    .map(productOptionGroup -> productOptionGroup.getOptionGroup().getId())
+                    .toList(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getState(),
+                product.getPicture()
+            )).toList();
+    }
 }

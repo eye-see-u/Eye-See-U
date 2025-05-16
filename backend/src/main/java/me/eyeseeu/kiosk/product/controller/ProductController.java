@@ -1,11 +1,14 @@
 package me.eyeseeu.kiosk.product.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import me.eyeseeu.kiosk.product.dto.request.ProductCreateRequest;
 import me.eyeseeu.kiosk.product.dto.response.ProductCreateResponse;
+import me.eyeseeu.kiosk.product.dto.response.ProductGetResponse;
 import me.eyeseeu.kiosk.product.service.ProductService;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,5 +30,10 @@ public class ProductController {
         @SessionAttribute("memberId") Long memberId) {
 
         return productService.createProduct(memberId, request);
+    }
+
+    @GetMapping
+    public List<ProductGetResponse> getProducts(@SessionAttribute("memberId") Long memberId) {
+        return productService.getProducts(memberId);
     }
 }

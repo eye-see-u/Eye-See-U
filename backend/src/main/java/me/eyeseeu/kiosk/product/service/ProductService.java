@@ -10,6 +10,7 @@ import me.eyeseeu.kiosk.member.service.MemberService;
 import me.eyeseeu.kiosk.option.entity.OptionGroup;
 import me.eyeseeu.kiosk.option.service.OptionGroupService;
 import me.eyeseeu.kiosk.product.dto.request.ProductCreateRequest;
+import me.eyeseeu.kiosk.product.dto.request.ProductUpdateRequest;
 import me.eyeseeu.kiosk.product.dto.response.ProductCreateResponse;
 import me.eyeseeu.kiosk.product.dto.response.ProductGetResponse;
 import me.eyeseeu.kiosk.product.dto.response.ProductUpdateResponse;
@@ -93,7 +94,7 @@ public class ProductService {
 
     @Transactional
     public ProductUpdateResponse updateProduct(Long memberId, Long productId,
-        ProductUpdateResponse request) {
+        ProductUpdateRequest request) {
 
         Product product = findProductById(memberId, productId);
 

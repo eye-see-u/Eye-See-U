@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import me.eyeseeu.kiosk.product.dto.request.ProductCreateRequest;
+import me.eyeseeu.kiosk.product.dto.request.ProductUpdateRequest;
 import me.eyeseeu.kiosk.product.dto.response.ProductCreateResponse;
 import me.eyeseeu.kiosk.product.dto.response.ProductGetResponse;
 import me.eyeseeu.kiosk.product.dto.response.ProductUpdateResponse;
@@ -43,7 +44,7 @@ public class ProductController {
 
     @PutMapping("/{productId}")
     public ProductUpdateResponse updateProduct(@PathVariable Long productId,
-        @RequestBody @Valid ProductUpdateResponse request,
+        @RequestBody @Valid ProductUpdateRequest request,
         @SessionAttribute("memberId") Long memberId) {
 
         return productService.updateProduct(memberId, productId, request);

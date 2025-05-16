@@ -76,13 +76,16 @@ public class Product extends BaseEntity {
     }
 
     public void update(String name, String description, int price, ProductState state,
-        Category category, List<ProductOptionGroup> productOptionGroups, String picture) {
+        Category category, String picture) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.state = state;
         this.category = category;
-        this.productOptionGroups = productOptionGroups;
         this.picture = picture;
+    }
+
+    public void clearProductOptionGroups() {
+        this.productOptionGroups.clear();
     }
 }

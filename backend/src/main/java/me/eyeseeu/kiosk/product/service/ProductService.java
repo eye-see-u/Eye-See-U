@@ -95,12 +95,7 @@ public class ProductService {
     public ProductUpdateResponse updateProduct(Long memberId, Long productId,
         ProductUpdateResponse request) {
 
-        Product product = productRepository.findById(productId)
-            .orElseThrow(ProductNotFoundException::new);
-
-        if (!product.getCategory().getMember().getId().equals(memberId)) {
-            throw new NotOwnedProductException();
-        }
+        Product product = findProductById(memberId, productId);
 
         Category category = categoryService.findCategoryById(memberId, request.categoryId());
         List<OptionGroup> optionGroups = optionGroupService.findAllOptionGroupById(memberId,
@@ -134,5 +129,22 @@ public class ProductService {
             savedProduct.getState(),
             savedProduct.getPicture()
         );
+    }
+
+    public void deleteProduct(Long memberId, Long productId) {
+        Product product = findProductById(memberId, productId);
+
+        productRepository.delete(product);
+    }
+
+    public Product findProductById(Long memberId, Long productId) {
+        Product product = productRepository.findById(productId)
+            .orElseThrow(ProductNotFoundException::new);
+
+        if (!product.getCategory().getMember().getId().equals(memberId)) {
+            throw new NotOwnedProductException();
+        }
+
+        return product;
     }
 }

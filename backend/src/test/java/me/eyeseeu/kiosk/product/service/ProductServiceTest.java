@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
+import java.util.ArrayList;
 import java.util.List;
 import me.eyeseeu.kiosk.category.entity.Category;
 import me.eyeseeu.kiosk.category.service.CategoryService;
@@ -14,6 +15,9 @@ import me.eyeseeu.kiosk.option.entity.OptionGroup;
 import me.eyeseeu.kiosk.option.service.OptionGroupService;
 import me.eyeseeu.kiosk.product.dto.request.ProductCreateRequest;
 import me.eyeseeu.kiosk.product.dto.response.ProductCreateResponse;
+import me.eyeseeu.kiosk.product.dto.response.ProductGetResponse;
+import me.eyeseeu.kiosk.product.entity.Product;
+import me.eyeseeu.kiosk.product.entity.ProductOptionGroup;
 import me.eyeseeu.kiosk.product.entity.ProductState;
 import me.eyeseeu.kiosk.product.repository.ProductOptionGroupRepository;
 import me.eyeseeu.kiosk.product.repository.ProductRepository;
@@ -104,5 +108,88 @@ class ProductServiceTest {
         assertThat(response.picture()).isEqualTo(picture);
 
         then(productOptionGroupRepository).should().saveAll(any());
+    }
+
+    @Test
+    @DisplayName("상품 목록 조회 성공")
+    void getProductsSuccess() {
+        // given
+        Long memberId = 1L;
+        Long categoryId = 1L;
+        List<Long> optionGroupIds = List.of(1L, 2L);
+
+        String productName1 = "불고기버거";
+        String productName2 = "치즈버거";
+        String productDescription1 = "특제 불고기 소스로 입맛 돋우는 부드러운 버거";
+        String productDescription2 = "두 장의 육즙 가득한 패티와 고소한 치즈 두 장이 어우러진 풍성한 버거";
+        int price1 = 6000;
+        int price2 = 5000;
+        ProductState productState1 = ProductState.AVAILABLE;
+        ProductState productState2 = ProductState.AVAILABLE;
+        String picture1 = "pic1.jpg";
+        String picture2 = "pic2.jpg";
+
+        Member member = Member.builder().build();
+        ReflectionTestUtils.setField(member, "id", memberId);
+
+        Category category = Category.builder().member(member).build();
+        ReflectionTestUtils.setField(category, "id", categoryId);
+
+        OptionGroup optionGroup1 = OptionGroup.builder()
+            .member(member)
+            .name("옵션1")
+            .minCount(1)
+            .maxCount(1)
+            .build();
+        OptionGroup optionGroup2 = OptionGroup.builder()
+            .member(member)
+            .name("옵션2")
+            .minCount(0)
+            .maxCount(2)
+            .build();
+        ReflectionTestUtils.setField(optionGroup1, "id", optionGroupIds.getFirst());
+        ReflectionTestUtils.setField(optionGroup2, "id", optionGroupIds.getLast());
+
+
+        Product product1 = Product.builder()
+            .member(member)
+            .category(category)
+            .productOptionGroups(new ArrayList<>())
+            .name(productName1)
+            .description(productDescription1)
+            .price(price1)
+            .state(productState1)
+            .picture(picture1)
+            .build();
+        Product product2 = Product.builder()
+            .member(member)
+            .category(category)
+            .productOptionGroups(new ArrayList<>())
+            .name(productName2)
+            .description(productDescription2)
+            .price(price2)
+            .state(productState2)
+            .picture(picture2)
+            .build();
+
+        product1.addProductOptionGroup(ProductOptionGroup.builder().
+            optionGroup(optionGroup1).build());
+        product1.addProductOptionGroup(ProductOptionGroup.builder().
+            optionGroup(optionGroup2).build());
+
+        product2.addProductOptionGroup(ProductOptionGroup.builder().
+            optionGroup(optionGroup1).build());
+
+        given(productRepository.findAllByMemberId(memberId)).willReturn(List.of(product1, product2));
+
+        // when
+        List<ProductGetResponse> result = productService.getProducts(memberId);
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result.getFirst().name()).isEqualTo(productName1);
+        assertThat(result.getLast().name()).isEqualTo(productName2);
+        assertThat(result.getFirst().optionGroups()).isEqualTo(optionGroupIds);
+        assertThat(result.getLast().optionGroups()).containsExactly(optionGroupIds.getFirst());
     }
 }

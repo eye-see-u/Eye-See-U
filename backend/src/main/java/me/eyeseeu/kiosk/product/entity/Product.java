@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.eyeseeu.kiosk.category.entity.Category;
 import me.eyeseeu.kiosk.common.entity.BaseEntity;
+import me.eyeseeu.kiosk.member.entity.Member;
 
 @Entity
 @Getter
@@ -30,7 +31,11 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
+    @ManyToOne
     @JoinColumn(nullable = false)
     private Category category;
 
@@ -53,13 +58,14 @@ public class Product extends BaseEntity {
     private String picture;
 
     @Builder
-    public Product(String name, String description, int price, ProductState state,
-        Category category, List<ProductOptionGroup> productOptionGroups, String picture) {
+    public Product(Member member, Category category, String name, String description, int price,
+        ProductState state, List<ProductOptionGroup> productOptionGroups, String picture) {
+        this.member = member;
+        this.category = category;
         this.name = name;
         this.description = description;
         this.price = price;
         this.state = state;
-        this.category = category;
         this.productOptionGroups = productOptionGroups;
         this.picture = picture;
     }

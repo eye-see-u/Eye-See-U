@@ -25,12 +25,12 @@ public class ProductOptionGroup extends BaseEntity {
     private Long id;
 
     @Setter
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "option_group_id")
+    @ManyToOne
+    @JoinColumn(name = "option_group_id", nullable = false)
     private OptionGroup optionGroup;
 
     @Builder

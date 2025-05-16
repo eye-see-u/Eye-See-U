@@ -142,7 +142,7 @@ public class ProductService {
         Product product = productRepository.findById(productId)
             .orElseThrow(ProductNotFoundException::new);
 
-        if (!product.getCategory().getMember().getId().equals(memberId)) {
+        if (!product.getMember().getId().equals(memberId)) {
             throw new NotOwnedProductException();
         }
 

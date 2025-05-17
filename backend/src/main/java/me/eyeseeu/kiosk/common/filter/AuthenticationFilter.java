@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.http.HttpMethod;
 
 @WebFilter(filterName = "authenticationFilter", urlPatterns = "/api/*")
 public class AuthenticationFilter implements Filter {
@@ -28,6 +29,11 @@ public class AuthenticationFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
+        if (HttpMethod.OPTIONS.matches(httpRequest.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String requestURI = httpRequest.getRequestURI();
         if (WHITE_LIST.contains(requestURI)) {
             filterChain.doFilter(request, response);
@@ -37,6 +43,12 @@ public class AuthenticationFilter implements Filter {
         Object memberId = httpRequest.getSession().getAttribute("memberId");
 
         if (memberId == null) {
+            httpResponse.setHeader("Access-Control-Allow-Origin", httpRequest.getHeader("Origin"));
+            httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+            httpResponse.setHeader("Access-Control-Allow-Methods",
+                "GET, POST, PUT, DELETE, OPTIONS");
+            httpResponse.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             httpResponse.setCharacterEncoding("UTF-8");
             httpResponse.setContentType("application/json");

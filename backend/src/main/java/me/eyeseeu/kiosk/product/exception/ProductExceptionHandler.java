@@ -1,4 +1,4 @@
-package me.eyeseeu.kiosk.category.exception;
+package me.eyeseeu.kiosk.product.exception;
 
 import me.eyeseeu.kiosk.common.exception.ExceptionResponse;
 import org.springframework.http.HttpStatus;
@@ -7,19 +7,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class CategoryExceptionHandler {
+public class ProductExceptionHandler {
 
-    @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleCategoryNotFoundException(
-        CategoryNotFoundException ex) {
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleProductNotFoundException(
+        ProductNotFoundException ex) {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(new ExceptionResponse(ex.getMessage()));
     }
 
-    @ExceptionHandler(NotOwnedCategoryException.class)
-    public ResponseEntity<ExceptionResponse> handleNotOwnedCategoryException(
-        NotOwnedCategoryException ex) {
+    @ExceptionHandler(NotOwnedProductException.class)
+    public ResponseEntity<ExceptionResponse> handleNotOwnedProductException(
+        NotOwnedProductException ex) {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(new ExceptionResponse(ex.getMessage()));

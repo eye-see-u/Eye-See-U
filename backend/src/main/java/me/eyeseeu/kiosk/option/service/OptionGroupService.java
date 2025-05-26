@@ -147,4 +147,19 @@ public class OptionGroupService {
         return optionGroup;
     }
 
+    public List<OptionGroup> findAllOptionGroupById(Long memberId, List<Long> idList) {
+        List<OptionGroup> optionGroups = optionGroupRepository.findAllById(idList);
+
+        if (optionGroups.size() != idList.size()) {
+            throw new OptionGroupNotFoundException();
+        }
+
+        for (OptionGroup optionGroup : optionGroups) {
+            if (!optionGroup.getMember().getId().equals(memberId)) {
+                throw new NotOwnedOptionGroupException();
+            }
+        }
+
+        return optionGroups;
+    }
 }
